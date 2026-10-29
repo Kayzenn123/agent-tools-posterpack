@@ -1,0 +1,575 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import StructuredData from '~/components/common/StructuredData.astro';
+import { SITE } from 'astrowind:config';
+
+const metadata = {
+  title: 'posterpack — dapur poster edukasi',
+  description:
+    'Isi 6 blok, pilih template, poster edukasi langsung jadi. Plus checklist syarat lomba biar tidak ada yang kelewat.',
+  ignoreTitleTemplate: true,
+};
+
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE?.site}/#website`,
+    name: 'posterpack',
+    url: SITE?.site,
+    inLanguage: 'id',
+    description: metadata.description,
+  },
+];
+
+const TEMPLATES = [
+  { id: 'koran', nama: 'koran', ket: 'judul tebal, isi dua kolom, garis tebal seperti koran.' },
+  { id: 'resep', nama: 'resep', ket: 'fakta jadi "bahan", ajakan jadi "cara sajikan".' },
+  { id: 'papan', nama: 'papan', ket: 'satu judul raksasa, sisanya minggir.' },
+  { id: 'kartu', nama: 'kartu', ket: 'fakta jadi kartu-kartu kecil yang bisa dipindai mata.' },
+  { id: 'selebaran', nama: 'selebaran', ket: 'ajakan paling besar — buat ditempel di mading.' },
+  { id: 'struk', nama: 'struk', ket: 'sempit dan bernomor, seperti struk belanja.' },
+];
+
+const PALETTES = [
+  { id: 'kertas', nama: 'kertas koran', ket: 'kertas hangat + stempel teal.' },
+  { id: 'laut', nama: 'laut', ket: 'teal dominan, kertas jadi aksen.' },
+  { id: 'tinta', nama: 'tinta malam', ket: 'latar gelap, kertas jadi cahaya.' },
+];
+
+const CONTOH = [
+  { id: 'air', tema: 'hemat air', judul: 'airnya jangan dibuang-buang', pesan: 'satu keran bocor bisa menghabiskan banyak air tanpa terasa.', fakta: ['matikan keran saat menggosok gigi', 'tampung air cucian beras untuk menyiram tanaman', 'laporkan keran bocor ke petugas sekolah'], ajakan: 'mulai dari keran di rumahmu hari ini', sumber: 'materi edukasi hemat air sekolah' },
+  { id: 'sampah', tema: 'pilah sampah', judul: 'sampahmu, tanggung jawabmu', pesan: 'pilah dari rumah biar yang bisa didaur ulang tidak berakhir di tempat yang sama.', fakta: ['plastik bersih masuk wadah daur ulang', 'sisa makanan dipisah dari plastik', 'botol kaca jangan dicampur pecahan tajam'], ajakan: 'coba pilah satu kantong hari ini', sumber: 'materi edukasi pilah sampah sekolah' },
+  { id: 'tangan', tema: 'cuci tangan', judul: 'tangan bersih, badan senang', pesan: 'cuci tangan pakai sabun itu cara paling gampang menjaga diri dari kuman.', fakta: ['basahi, sabuni, gosok 20 detik', 'sela jari dan punggung tangan jangan lupa', 'cuci sebelum makan dan setelah dari toilet'], ajakan: 'cuci tanganmu sekarang juga', sumber: 'materi edukasi perilaku hidup bersih sekolah' },
+  { id: 'listrik', tema: 'hemat listrik', judul: 'lampu mati, dompet senang', pesan: 'listrik yang tidak dipakai tapi tetap menyala itu pemborosan yang diam-diam.', fakta: ['matikan lampu ruangan yang kosong', 'cabut charger yang tidak dipakai', 'pakai cahaya matahari di siang hari'], ajakan: 'cek satu saklar di kamarmu', sumber: 'materi edukasi hemat energi sekolah' },
+  { id: 'baca', tema: 'baca tiap hari', judul: 'baca sedikit, tiap hari', pesan: 'membaca sebentar tapi rutin lebih nempel daripada membaca banyak sekali-sekali.', fakta: ['pilih buku yang kamu suka dulu', 'baca di jam yang sama tiap hari', 'ceritakan isi bacaanmu ke teman'], ajakan: 'buka satu halaman malam ini', sumber: 'materi edukasi literasi sekolah' },
+  { id: 'sepeda', tema: 'aman bersepeda', judul: 'helm dulu, baru kayuh', pesan: 'sepeda itu seru — asal aturan keselamatannya tidak ditinggal.', fakta: ['pakai helm setiap naik sepeda', 'periksa rem sebelum berangkat', 'ikuti jalur sepeda, jangan lawan arah'], ajakan: 'cek helmmu sebelum berangkat', sumber: 'materi edukasi keselamatan berkendara sekolah' },
+];
+
+const SYARAT = [
+  { id: 'ukuran', teks: 'ukuran dan orientasi sesuai pamflet (mis. a4 portrait)', ket: 'tiap lomba beda — baca pamfletmu, jangan hafalan.' },
+  { id: 'tema', teks: 'isi poster nyambung dengan tema lomba', ket: 'juri pertama-tama cek ini.' },
+  { id: 'orisinal', teks: 'gambar dan kalimat buatan sendiri, bukan jiplakan', ket: 'jiplakan = diskualifikasi di hampir semua lomba.' },
+  { id: 'logo', teks: 'logo penyelenggara terpasang bila diminta', ket: 'kalau tidak diminta, jangan tempel sembarangan.' },
+  { id: 'sumber', teks: 'sumber data dicantumkan di kaki poster', ket: 'poster edukasi tanpa sumber gampang dicoret juri.' },
+  { id: 'nama', teks: 'nama dan asal sekolah di tempat yang diminta', ket: 'ada lomba yang minta di depan, ada yang di belakang.' },
+  { id: 'tipografi', teks: 'judul terbaca dari jarak 2 meter', ket: 'coba cetak kecil dulu, lalu lihat dari jauh.' },
+  { id: 'typo', teks: 'naskah sudah dibaca ulang, bebas salah ketik', ket: 'satu typo di judul itu fatal.' },
+  { id: 'foto', teks: 'foto orang lain sudah ada izinnya', ket: 'tanpa izin, ganti dengan ilustrasi saja.' },
+  { id: 'resolusi', teks: 'gambar tidak pecah saat dicetak', ket: 'gambar buram = nilai presentasi jatuh.' },
+  { id: 'warna', teks: 'warna tidak keluar dari tema dan tetap terbaca', ket: 'teks muda di latar muda itu musuh juri.' },
+  { id: 'tenggat', teks: 'dikirim sebelum tenggat, bukan pas tenggat', ket: 'unggahan detik terakhir rawan gagal.' },
+];
+---
+
+<Layout metadata={metadata}>
+  <StructuredData structuredData={structuredData} />
+  <a class="skip" href="#kerja">lompat ke meja kerja</a>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <p class="brand"><span class="brand-mark" aria-hidden="true">pp</span> posterpack <span class="brand-sub">dapur poster edukasi</span></p>
+    <nav class="topnav" aria-label="bagian halaman">
+      <a href="#kerja">meja kerja</a>
+      <a href="#contoh">contoh</a>
+      <a href="#syarat">syarat lomba</a>
+      <button id="btn-gerak" type="button" aria-pressed="false">gerak: nyala</button>
+      <button id="btn-marquee" type="button" aria-pressed="false">marquee: jalan</button>
+    </nav>
+  </header>
+
+  <div class="marquee band-a" aria-hidden="true"><div class="track"><span>isi — pilih — cetak — isi — pilih — cetak — isi — pilih — cetak —&nbsp;</span><span>isi — pilih — cetak — isi — pilih — cetak — isi — pilih — cetak —&nbsp;</span></div></div>
+
+  <main>
+    <section id="kerja" class="kerja wipe" aria-labelledby="h-kerja">
+      <div class="kerja-head">
+        <h1 id="h-kerja"><span class="w">masak</span> <span class="w">poster</span> <span class="w">di</span> <span class="w">sini.</span></h1>
+        <p class="tini">kata bu tini: <em>bahan dulu, baru masak poster. isi baris-baris di kiri, poster di kanan ikut berubah.</em></p>
+      </div>
+
+      <div class="meja">
+        <form id="editor" class="lembar" novalidate>
+          <p class="lembar-title">lembar kerja — isi sesukamu</p>
+          <div class="baris">
+            <label for="f-judul">judul poster</label>
+            <input id="f-judul" name="judul" type="text" maxlength="80" placeholder="mis. airnya jangan dibuang-buang" autocomplete="off" />
+            <span class="st" aria-hidden="true"></span>
+          </div>
+          <div class="baris">
+            <label for="f-tema">tema contoh</label>
+            <select id="f-tema" name="tema" aria-describedby="tema-ket">
+              <option value="">pilih contoh, atau isi sendiri</option>
+              {CONTOH.map((c) => <option value={c.id}>{c.tema}</option>)}
+            </select>
+            <span class="st" aria-hidden="true"></span>
+          </div>
+          <p id="tema-ket" class="ket">pilih tema untuk mengisi semua baris sekaligus. isianmu tetap bisa diubah.</p>
+          <div class="baris">
+            <label for="f-pesan">pesan utama</label>
+            <textarea id="f-pesan" name="pesan" rows="2" maxlength="200" placeholder="satu kalimat inti poster ini"></textarea>
+            <span class="st" aria-hidden="true"></span>
+          </div>
+          <div class="baris">
+            <label for="f-fakta1">bahan 1</label>
+            <input id="f-fakta1" name="fakta1" type="text" maxlength="120" placeholder="fakta atau langkah pertama" autocomplete="off" />
+            <span class="st" aria-hidden="true"></span>
+          </div>
+          <div class="baris">
+            <label for="f-fakta2">bahan 2</label>
+            <input id="f-fakta2" name="fakta2" type="text" maxlength="120" placeholder="fakta atau langkah kedua" autocomplete="off" />
+            <span class="st" aria-hidden="true"></span>
+          </div>
+          <div class="baris">
+            <label for="f-fakta3">bahan 3</label>
+            <input id="f-fakta3" name="fakta3" type="text" maxlength="120" placeholder="fakta atau langkah ketiga" autocomplete="off" />
+            <span class="st" aria-hidden="true"></span>
+          </div>
+          <div class="baris">
+            <label for="f-ajakan">ajakan</label>
+            <input id="f-ajakan" name="ajakan" type="text" maxlength="120" placeholder="apa yang harus dilakukan pembaca" autocomplete="off" />
+            <span class="st" aria-hidden="true"></span>
+          </div>
+          <div class="baris">
+            <label for="f-sumber">sumber</label>
+            <input id="f-sumber" name="sumber" type="text" maxlength="120" placeholder="sumber data / materi" autocomplete="off" />
+            <span class="st" aria-hidden="true"></span>
+          </div>
+          <div class="baris">
+            <label for="f-nama">nama pembuat</label>
+            <input id="f-nama" name="nama" type="text" maxlength="80" placeholder="namamu + sekolah (opsional)" autocomplete="off" />
+            <span class="st" aria-hidden="true"></span>
+          </div>
+
+          <fieldset class="pilih">
+            <legend>template — bentuk posternya</legend>
+            <div class="pilih-grid" role="group" aria-label="pilih template">
+              {TEMPLATES.map((t) => <button type="button" class="tpl" data-tpl={t.id}><b>{t.nama}</b><small>{t.ket}</small></button>)}
+            </div>
+          </fieldset>
+
+          <fieldset class="pilih">
+            <legend>palet — warna kertasnya</legend>
+            <div class="pilih-grid palet-grid" role="group" aria-label="pilih palet">
+              {PALETTES.map((p) => <button type="button" class="plt" data-plt={p.id}><span class="swatch" aria-hidden="true"></span><b>{p.nama}</b><small>{p.ket}</small></button>)}
+            </div>
+          </fieldset>
+
+          <div class="aksi" role="group" aria-label="ekspor poster">
+            <button type="button" id="btn-salin">salin teks poster</button>
+            <button type="button" id="btn-unduh">unduh .txt</button>
+            <button type="button" id="btn-cetak">cetak poster</button>
+            <button type="button" id="btn-tautan">salin tautan</button>
+            <button type="button" id="btn-acak">acak contoh</button>
+            <button type="button" id="btn-kosong">kosongkan</button>
+          </div>
+          <p id="status" class="status" role="status" aria-live="polite">poster kosong — isi judul dulu, bu tini yang masak sisanya.</p>
+          <p id="tini-note" class="tini-note" hidden></p>
+        </form>
+
+        <div class="panggung">
+          <div id="poster-wrap">
+            <article id="poster-preview" class="poster tpl-koran plt-kertas" aria-label="pratinjau poster">
+              <p class="p-kicker">poster edukasi</p>
+              <h2 id="p-judul" class="p-judul">judulmu di sini</h2>
+              <p id="p-pesan" class="p-pesan">pesan utamamu akan tampil di sini. isi baris pesan di lembar kerja.</p>
+              <ul class="p-fakta" aria-label="bahan poster">
+                <li id="p-fakta1">bahan 1 — masih kosong</li>
+                <li id="p-fakta2">bahan 2 — masih kosong</li>
+                <li id="p-fakta3">bahan 3 — masih kosong</li>
+              </ul>
+              <p id="p-ajakan" class="p-ajakan">ajakanmu di sini</p>
+              <p class="p-kaki"><span id="p-sumber">sumber: —</span> · <span id="p-nama">oleh: —</span></p>
+              <span class="stempel" aria-hidden="true">sah</span>
+            </article>
+          </div>
+          <p class="panggung-ket">pratinjau ini bukan file cetak final — salin teksnya, tempel ke desainmu, atau cetak halaman ini sebagai draf.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee band-b" aria-hidden="true"><div class="track"><span>hemat air · pilah sampah · cuci tangan · hemat listrik · baca tiap hari · aman bersepeda ·&nbsp;</span><span>hemat air · pilah sampah · cuci tangan · hemat listrik · baca tiap hari · aman bersepeda ·&nbsp;</span></div></div>
+
+    <section id="contoh" class="wipe" aria-labelledby="h-contoh">
+      <h2 id="h-contoh">contoh yang bisa langsung dipakai</h2>
+      <p class="sub">seret stripnya, atau pakai tombol geser. klik kartu untuk mengisi lembar kerja.</p>
+      <div class="strip-wrap">
+        <button type="button" id="strip-prev" aria-label="geser contoh ke kiri">‹</button>
+        <div id="strip" class="strip" tabindex="0" aria-label="daftar contoh poster">
+          {CONTOH.map((c) => (
+            <button type="button" class="kartu-contoh" data-contoh={c.id} data-tema={c.tema} data-judul={c.judul} data-pesan={c.pesan} data-fakta1={c.fakta[0]} data-fakta2={c.fakta[1]} data-fakta3={c.fakta[2]} data-ajakan={c.ajakan} data-sumber={c.sumber}>
+              <span class="kartu-tema">{c.tema}</span>
+              <b>{c.judul}</b>
+              <small>{c.pesan}</small>
+            </button>
+          ))}
+        </div>
+        <button type="button" id="strip-next" aria-label="geser contoh ke kanan">›</button>
+      </div>
+    </section>
+
+    <section id="syarat" class="wipe" aria-labelledby="h-syarat">
+      <h2 id="h-syarat">syarat lomba — jangan sampai kelewat</h2>
+      <p class="sub">centang satu-satu. tiap lomba beda pamfletnya, jadi daftar ini pengingat, bukan aturan resmi lomba mana pun. yang resmi tetap pamflet lombamu.</p>
+      <div class="progres" role="img" aria-label="progres checklist">
+        <div id="progres-bar" class="progres-bar"></div>
+      </div>
+      <p id="progres-teks" class="progres-teks" role="status" aria-live="polite">0 dari 12 tercentang</p>
+      <ul class="ceklist">
+        {SYARAT.map((s) => (
+          <li>
+            <label><input type="checkbox" data-syarat={s.id} /> <b>{s.teks}</b><small>{s.ket}</small></label>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="cara" class="wipe" aria-labelledby="h-cara">
+      <h2 id="h-cara">cara pakainya</h2>
+      <ol class="cara">
+        <li><b>langkah 1 — isi.</b> tulis judul, pesan, tiga bahan, dan ajakan. boleh mulai dari contoh.</li>
+        <li><b>langkah 2 — pilih.</b> ganti template dan palet sampai posternya terasa seperti punyamu.</li>
+        <li><b>langkah 3 — bawa pulang.</b> salin teksnya, unduh .txt, atau cetak sebagai draf. datamu cuma tersimpan di perangkatmu.</li>
+      </ol>
+      <p class="sub">tidak ada akun, tidak ada pelacak, tidak ada data yang dikirim ke server. tautan berbagi hanya berisi isianmu sendiri.</p>
+    </section>
+  </main>
+
+  <footer class="kaki">
+    <p>posterpack — dapur poster edukasi. dibuat untuk pelajar yang ikut lomba poster/infografis.</p>
+    <p>daftar syarat di atas bersifat pengingat umum. aturan yang mengikat adalah pamflet resmi lomba yang kamu ikuti.</p>
+  </footer>
+</Layout>
+
+<style>
+  :root {
+    --bg: oklch(0.74 0.12 21); --surface: oklch(0.6 0.11 21); --text: oklch(0.16 0.03 21);
+    --muted: oklch(0.32 0.04 21); --accent: oklch(0.61 0.182 171); --accent-ink: oklch(0.36 0.15 171);
+    --accent2: oklch(0.56 0.2 231); --accent2-ink: oklch(0.34 0.16 231); --pop: oklch(0.83 0.225 237);
+    --paper: oklch(0.96 0.04 85);
+  }
+  body { background: var(--bg); color: var(--text); overflow-x: clip; }
+  main { min-width: 0; width: 100%; }
+  .marquee { min-width: 0; }
+  .skip { position: absolute; left: -9999px; top: 8px; background: var(--pop); color: var(--text); padding: 10px 14px; z-index: 50; }
+  .skip:focus { left: 8px; }
+  :focus-visible { outline: 3px solid var(--accent2-ink); outline-offset: 2px; }
+  .grain { position: fixed; inset: 0; z-index: 40; pointer-events: none; opacity: 0.10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"); }
+  .topbar { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 3px solid var(--text); }
+  .brand { font-family: var(--font-display); font-size: clamp(1.6rem, 5vw, 2.4rem); margin: 0; line-height: 1; }
+  .brand-mark { display: inline-block; background: var(--text); color: var(--bg); padding: 2px 8px; transform: rotate(-3deg); }
+  .brand-sub { font-family: var(--font-accent); font-size: 1.1rem; margin-left: 8px; }
+  .topnav { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .topnav a, .topnav button { font-size: 16px; padding: 10px 12px; min-height: 44px; border: 2px solid var(--text); background: transparent; color: var(--text); cursor: pointer; text-decoration: none; }
+  .topnav button { background: var(--paper); }
+  .marquee { overflow: hidden; border-bottom: 3px solid var(--text); background: var(--accent-ink); color: var(--paper); }
+  .band-b { background: var(--accent2-ink); border-bottom: 0; border-top: 3px solid var(--text); }
+  .track { display: flex; width: max-content; white-space: nowrap; font-family: var(--font-display); font-size: clamp(1.2rem, 4vw, 2rem); line-height: 1.4; padding: 12px 0; } animation: jalan 26s linear infinite; }
+  .band-b .track { animation-direction: reverse; animation-duration: 32s; }
+  @keyframes jalan { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  main { max-width: 1240px; margin: 0 auto; padding: 0 16px 48px; }
+  section { padding: 40px 0; }
+  h1 { font-family: var(--font-display); font-size: clamp(2.6rem, 10vw, 6rem); line-height: 0.95; margin: 0 0 12px; }
+  h2 { font-family: var(--font-display); font-size: clamp(1.9rem, 6vw, 3.2rem); line-height: 1; margin: 0 0 12px; }
+  .w { display: inline-block; animation: jatuh 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+  .w:nth-child(2) { animation-delay: 0.12s; } .w:nth-child(3) { animation-delay: 0.24s; } .w:nth-child(4) { animation-delay: 0.36s; }
+  @keyframes jatuh { from { transform: translateY(-46px) rotate(-4deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .tini { font-family: var(--font-accent); font-size: 1.35rem; margin: 0 0 24px; max-width: 60ch; }
+  .sub { max-width: 70ch; font-size: 1.05rem; }
+  .meja { display: grid; gap: 24px; }
+  @media (min-width: 900px) { .meja { grid-template-columns: 1fr 1fr; align-items: start; } .panggung { position: sticky; top: 12px; } }
+  .lembar { background: var(--paper); border: 3px solid var(--text); padding: 16px; }
+  .lembar-title { font-family: var(--font-display); font-size: 1.4rem; letter-spacing: 0.02em; margin: 0 0 16px; border-bottom: 3px solid var(--text); padding-bottom: 8px; }
+  .baris { display: grid; grid-template-columns: 120px 1fr 14px; gap: 8px; align-items: start; margin-bottom: 12px; }
+  @media (max-width: 520px) { .baris { grid-template-columns: 1fr; } .baris .st { display: none; } }
+  .baris label { font-weight: 700; padding-top: 10px; }
+  .baris input, .baris select, .baris textarea { font-size: 16px; font-family: var(--font-body); width: 100%; border: 2px solid var(--text); background: #fff; color: var(--text); padding: 10px; }
+  .baris .st { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--text); margin-top: 12px; }
+  .baris.ok .st { background: var(--accent); }
+  .ket { grid-column: 1 / -1; font-size: 0.9rem; margin: -4px 0 12px 0; }
+  .pilih { border: 0; border-top: 3px solid var(--text); margin: 20px 0 0; padding: 12px 0 0; }
+  .pilih legend { font-weight: 800; padding: 0 6px 0 0; }
+  .pilih-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .tpl, .plt { font-size: 16px; text-align: left; border: 2px solid var(--text); background: #fff; color: var(--text); padding: 10px; cursor: pointer; min-height: 44px; }
+  .tpl b, .plt b { display: block; }
+  .tpl small, .plt small { font-size: 0.85rem; }
+  .tpl[aria-pressed="true"], .plt[aria-pressed="true"] { background: var(--accent); color: var(--text); outline: 3px solid var(--text); }
+  .swatch { display: block; height: 14px; background: var(--bg); border: 2px solid var(--text); margin-bottom: 6px; }
+  .plt[data-plt="laut"] .swatch { background: var(--accent); }
+  .plt[data-plt="tinta"] .swatch { background: var(--text); }
+  .aksi { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .aksi button { font-size: 16px; min-height: 44px; padding: 10px 14px; border: 2px solid var(--text); background: var(--text); color: var(--paper); cursor: pointer; }
+  .aksi button:nth-child(n+4) { background: var(--paper); color: var(--text); }
+  .status { font-weight: 700; border-left: 6px solid var(--accent-ink); padding-left: 10px; }
+  .status.err { border-color: #b00020; color: #7a0015; }
+  .tini-note { font-family: var(--font-accent); font-size: 1.3rem; background: var(--pop); border: 2px dashed var(--text); padding: 10px; }
+  #poster-wrap { will-change: transform; }
+  .poster { background: var(--paper); color: var(--text); border: 3px solid var(--text); padding: 24px; min-height: 520px; position: relative; overflow: hidden; }
+  .p-kicker { font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.85rem; margin: 0 0 8px; }
+  .p-judul { font-family: var(--font-display); font-size: clamp(2rem, 6vw, 3.4rem); line-height: 0.95; margin: 0 0 12px; overflow-wrap: anywhere; }
+  .p-pesan { font-size: 1.15rem; line-height: 1.5; }
+  .p-fakta { padding-left: 20px; line-height: 1.6; }
+  .p-ajakan { font-family: var(--font-display); font-size: 1.6rem; background: var(--accent); color: #fff; padding: 10px 12px; transform: rotate(-1deg); }
+  .p-kaki { font-size: 0.9rem; border-top: 2px solid currentColor; padding-top: 8px; }
+  .stempel { position: absolute; right: 14px; bottom: 64px; border: 3px solid var(--accent-ink); color: var(--accent-ink); font-family: var(--font-display); font-size: 1.4rem; padding: 2px 12px; transform: rotate(-12deg); text-transform: uppercase; }
+  .poster.plt-laut { background: var(--accent); color: oklch(0.16 0.03 21); }
+  .poster.plt-laut .p-ajakan { background: var(--paper); color: var(--text); }
+  .poster.plt-tinta { background: oklch(0.18 0.03 21); color: oklch(0.95 0.02 85); }
+  .poster.plt-tinta .p-ajakan { background: var(--pop); color: var(--text); }
+  .poster.tpl-resep { border-style: dashed; }
+  .poster.tpl-resep .p-fakta { list-style: none; padding: 0; }
+  .poster.tpl-resep .p-fakta li::before { content: "bahan — "; font-family: var(--font-accent); font-size: 1.2rem; }
+  .poster.tpl-papan .p-judul { font-size: clamp(3rem, 12vw, 5.5rem); }
+  .poster.tpl-kartu .p-fakta { list-style: none; padding: 0; display: grid; gap: 8px; }
+  .poster.tpl-kartu .p-fakta li { border: 2px solid currentColor; padding: 8px; }
+  @media (min-width: 900px) { .poster.tpl-koran .p-fakta { columns: 2; } }
+  .poster.tpl-selebaran { text-align: center; }
+  .poster.tpl-selebaran .p-ajakan { font-size: clamp(2rem, 8vw, 3.4rem); }
+  .poster.tpl-selebaran .p-fakta { list-style: none; padding: 0; }
+  .poster.tpl-struk { max-width: 380px; margin: 0 auto; text-align: center; }
+  .poster.tpl-struk .p-fakta { list-style: none; padding: 0; }
+  .poster.tpl-struk .p-fakta li { border-bottom: 2px dashed currentColor; padding: 6px 0; }
+  .panggung-ket { font-size: 0.95rem; }
+  .strip-wrap { display: flex; gap: 8px; align-items: stretch; }
+  .strip-wrap > button { font-size: 28px; min-width: 44px; border: 2px solid var(--text); background: var(--paper); color: var(--text); cursor: pointer; }
+  .strip { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding: 4px 2px 12px; touch-action: pan-y; cursor: grab; scrollbar-width: thin; }
+  .strip.drag { cursor: grabbing; scroll-behavior: auto; }
+  .kartu-contoh { flex: 0 0 240px; text-align: left; border: 3px solid var(--text); background: var(--paper); color: var(--text); padding: 14px; cursor: pointer; min-height: 44px; }
+  .kartu-contoh:hover, .kartu-contoh:focus-visible { outline: 3px solid var(--accent2-ink); }
+  .kartu-tema { display: block; font-weight: 800; color: var(--accent-ink); margin-bottom: 6px; }
+  .kartu-contoh b { font-family: var(--font-display); font-size: 1.25rem; display: block; }
+  .kartu-contoh small { display: block; margin-top: 6px; line-height: 1.5; }
+  .progres { height: 20px; border: 3px solid var(--text); background: var(--paper); }
+  .progres-bar { height: 100%; width: 0%; background: var(--accent); transition: width 300ms ease; }
+  .progres-teks { font-weight: 800; }
+  .ceklist { list-style: none; padding: 0; display: grid; gap: 8px; }
+  @media (min-width: 768px) { .ceklist { grid-template-columns: 1fr 1fr; } }
+  .ceklist li { border: 2px solid var(--text); background: var(--paper); }
+  .ceklist label { display: block; padding: 12px; cursor: pointer; }
+  .ceklist input { width: 44px; height: 44px; accent-color: var(--accent-ink); vertical-align: middle; margin-right: 8px; }
+  .ceklist small { display: block; margin: 4px 0 0 52px; }
+  .cara { line-height: 1.7; font-size: 1.05rem; }
+  .kaki { border-top: 3px solid var(--text); padding: 20px 16px; max-width: 1240px; margin: 0 auto; }
+  html.js .wipe { clip-path: inset(0 0 100% 0); transition: clip-path 600ms ease; }
+  html.js .wipe.in { clip-path: inset(0 0 0% 0); }
+  .no-motion .track, .no-motion .w { animation: none !important; }
+  .no-motion .wipe { clip-path: none; transition: none; }
+  .no-motion .progres-bar { transition: none; }
+  .lite .track { animation-play-state: paused; }
+  @media (prefers-reduced-motion: reduce) {
+    .track, .w { animation: none !important; }
+    .wipe { clip-path: none; transition: none; }
+  }
+  @media print {
+    body * { visibility: hidden; }
+    #poster-preview, #poster-preview * { visibility: visible; }
+    #poster-preview { position: absolute; inset: 0; width: 100%; min-height: auto; }
+  }
+</style>
+
+<script>
+  (function () {
+    var $ = function (s, r) { return (r || document).querySelector(s); };
+    var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+    var KEY = 'posterpack-v1';
+    var SKEY = 'posterpack-syarat-v1';
+    var CONTOH = $$('.kartu-contoh').map(function (b) { return { id: b.getAttribute('data-contoh'), tema: b.getAttribute('data-tema'), judul: b.getAttribute('data-judul'), pesan: b.getAttribute('data-pesan'), fakta: [b.getAttribute('data-fakta1'), b.getAttribute('data-fakta2'), b.getAttribute('data-fakta3')], ajakan: b.getAttribute('data-ajakan'), sumber: b.getAttribute('data-sumber') }; });
+    var FIELDS = ['judul', 'pesan', 'fakta1', 'fakta2', 'fakta3', 'ajakan', 'sumber', 'nama'];
+    var state = { judul: '', pesan: '', fakta1: '', fakta2: '', fakta3: '', ajakan: '', sumber: '', nama: '', tpl: 'koran', plt: 'kertas', tema: '' };
+    var statusEl = $('#status');
+    function clean(v, max) { return String(v == null ? '' : v).slice(0, max || 200); }
+    function loadStored() {
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (!raw) return;
+        var d = JSON.parse(raw);
+        if (!d || d.v !== 1 || typeof d !== 'object') return;
+        FIELDS.forEach(function (f) { if (typeof d[f] === 'string') state[f] = clean(d[f], 200); });
+        if (['koran', 'resep', 'papan', 'kartu', 'selebaran', 'struk'].indexOf(d.tpl) >= 0) state.tpl = d.tpl;
+        if (['kertas', 'laut', 'tinta'].indexOf(d.plt) >= 0) state.plt = d.plt;
+      } catch (e) { /* data rusak: pakai default */ }
+    }
+    function loadParams() {
+      try {
+        var p = new URLSearchParams(location.search);
+        var map = { judul: 'judul', pesan: 'pesan', f1: 'fakta1', f2: 'fakta2', f3: 'fakta3', ajakan: 'ajakan', sumber: 'sumber', nama: 'nama' };
+        Object.keys(map).forEach(function (k) { if (p.has(k)) state[map[k]] = clean(p.get(k), 200); });
+        if (p.has('tpl')) state.tpl = p.get('tpl');
+        if (p.has('plt')) state.plt = p.get('plt');
+        if (p.has('tema')) state.tema = p.get('tema');
+      } catch (e) { /* abaikan param rusak */ }
+    }
+    function save() {
+      try { var d = { v: 1 }; FIELDS.forEach(function (f) { d[f] = state[f]; }); d.tpl = state.tpl; d.plt = state.plt; localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {}
+    }
+    function syncInputs() {
+      var ids = { judul: '#f-judul', pesan: '#f-pesan', fakta1: '#f-fakta1', fakta2: '#f-fakta2', fakta3: '#f-fakta3', ajakan: '#f-ajakan', sumber: '#f-sumber', nama: '#f-nama' };
+      Object.keys(ids).forEach(function (f) { var el = $(ids[f]); if (el && el.value !== state[f]) el.value = state[f]; });
+      $$('.baris').forEach(function (row) { var inp = row.querySelector('input, textarea, select'); row.classList.toggle('ok', !!(inp && inp.value && inp.value.trim())); });
+    }
+    function render() {
+      var pv = $('#poster-preview');
+      pv.className = 'poster tpl-' + state.tpl + ' plt-' + state.plt;
+      var set = function (id, val, empty) { var el = $(id); if (el) el.textContent = val && val.trim() ? val : empty; };
+      set('#p-judul', state.judul, 'judulmu di sini');
+      set('#p-pesan', state.pesan, 'pesan utamamu akan tampil di sini. isi baris pesan di lembar kerja.');
+      set('#p-fakta1', state.fakta1, 'bahan 1 — masih kosong');
+      set('#p-fakta2', state.fakta2, 'bahan 2 — masih kosong');
+      set('#p-fakta3', state.fakta3, 'bahan 3 — masih kosong');
+      set('#p-ajakan', state.ajakan, 'ajakanmu di sini');
+      set('#p-sumber', state.sumber ? 'sumber: ' + state.sumber : 'sumber: —');
+      set('#p-nama', state.nama ? 'oleh: ' + state.nama : 'oleh: —');
+      $$('.tpl').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-tpl') === state.tpl)); });
+      $$('.plt').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-plt') === state.plt)); });
+      var note = $('#tini-note');
+      if (state.judul.toLowerCase().indexOf('resep nenek') >= 0) { note.hidden = false; note.textContent = 'nah, ini resep andalan saya. bahan lengkap, langkah jelas — poster begini yang juri suka.'; }
+      else { note.hidden = true; note.textContent = ''; }
+      save();
+      try {
+        var q = new URLSearchParams();
+        q.set('judul', state.judul); q.set('pesan', state.pesan); q.set('f1', state.fakta1); q.set('f2', state.fakta2); q.set('f3', state.fakta3);
+        q.set('ajakan', state.ajakan); q.set('sumber', state.sumber); q.set('nama', state.nama); q.set('tpl', state.tpl); q.set('plt', state.plt);
+        history.replaceState(null, '', '?' + q.toString());
+      } catch (e) {}
+    }
+    function posterText() {
+      var lines = [state.judul, '', state.pesan, '', 'bahan:', '1. ' + state.fakta1, '2. ' + state.fakta2, '3. ' + state.fakta3, '', state.ajakan, '', 'sumber: ' + state.sumber, 'oleh: ' + state.nama, '', 'dibuat dengan posterpack'];
+      return lines.join('\n');
+    }
+    function setStatus(msg, err) { statusEl.textContent = msg; statusEl.classList.toggle('err', !!err); }
+    function needJudul() {
+      if (!state.judul.trim()) { setStatus('judul masih kosong — isi baris judul dulu, baru bisa diekspor.', true); var j = $('#f-judul'); if (j) j.focus(); return false; }
+      return true;
+    }
+    function copyText(txt, okMsg) {
+      function fallback() {
+        try {
+          var ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          var ok = document.execCommand('copy'); document.body.removeChild(ta);
+          setStatus(ok ? okMsg : 'salinan gagal — izinkan akses clipboard, lalu coba lagi.', !ok);
+        } catch (e) { setStatus('salinan gagal — izinkan akses clipboard, lalu coba lagi.', true); }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).then(function () { setStatus(okMsg); }, fallback); }
+      else { fallback(); }
+    }
+    function loadContoh(id) {
+      var c = null; CONTOH.forEach(function (x) { if (x.id === id) c = x; });
+      if (!c) { setStatus('contoh itu tidak ketemu — pilih kartu lain.', true); return; }
+      state.judul = c.judul; state.pesan = c.pesan; state.fakta1 = c.fakta[0] || ''; state.fakta2 = c.fakta[1] || ''; state.fakta3 = c.fakta[2] || '';
+      state.ajakan = c.ajakan; state.sumber = c.sumber; state.tema = c.id;
+      var sel = $('#f-tema'); if (sel) sel.value = c.id;
+      syncInputs(); render(); setStatus('contoh "' + c.tema + '" sudah masuk lembar kerja — ubah sesukamu.');
+    }
+    // wiring input
+    var bindMap = { 'f-judul': 'judul', 'f-pesan': 'pesan', 'f-fakta1': 'fakta1', 'f-fakta2': 'fakta2', 'f-fakta3': 'fakta3', 'f-ajakan': 'ajakan', 'f-sumber': 'sumber', 'f-nama': 'nama' };
+    Object.keys(bindMap).forEach(function (id) { var el = document.getElementById(id); if (el) el.addEventListener('input', function () { state[bindMap[id]] = el.value; syncInputs(); render(); }); });
+    var temaSel = $('#f-tema');
+    if (temaSel) temaSel.addEventListener('change', function () { if (temaSel.value) loadContoh(temaSel.value); });
+    $$('.tpl').forEach(function (b) { b.addEventListener('click', function () { state.tpl = b.getAttribute('data-tpl'); render(); setStatus('template "' + state.tpl + '" dipakai.'); }); });
+    $$('.plt').forEach(function (b) { b.addEventListener('click', function () { state.plt = b.getAttribute('data-plt'); render(); setStatus('palet "' + state.plt + '" dipakai.'); }); });
+    $$('.kartu-contoh').forEach(function (b) { b.addEventListener('click', function () { loadContoh(b.getAttribute('data-contoh')); document.getElementById('kerja').scrollIntoView({ behavior: 'smooth' }); }); });
+    $('#btn-salin').addEventListener('click', function () { if (needJudul()) copyText(posterText(), 'teks poster tersalin — tempel ke desainmu.'); });
+    $('#btn-unduh').addEventListener('click', function () {
+      if (!needJudul()) return;
+      try {
+        var blob = new Blob([posterText()], { type: 'text/plain;charset=utf-8' });
+        var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'posterpack-poster.txt'; a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000); setStatus('file posterpack-poster.txt terunduh.');
+      } catch (e) { setStatus('unduhan gagal di perangkat ini — pakai tombol salin teks saja.', true); }
+    });
+    $('#btn-cetak').addEventListener('click', function () { if (needJudul()) { setStatus('jendela cetak dibuka — pilih simpan sebagai pdf kalau mau file.'); window.print(); } });
+    $('#btn-tautan').addEventListener('click', function () { render(); copyText(location.href, 'tautan poster tersalin — kirim ke temanmu.'); });
+    $('#btn-acak').addEventListener('click', function () { if (CONTOH.length) loadContoh(CONTOH[Math.floor(Math.random() * CONTOH.length)].id); });
+    $('#btn-kosong').addEventListener('click', function () {
+      FIELDS.forEach(function (f) { state[f] = ''; }); state.tema = '';
+      if (temaSel) temaSel.value = ''; syncInputs(); render(); setStatus('lembar kerja dikosongkan — mulai dari nol lagi.');
+    });
+    // checklist
+    var boxes = $$('[data-syarat]');
+    function renderSyarat() {
+      var done = boxes.filter(function (b) { return b.checked; }).length;
+      $('#progres-bar').style.width = (done / boxes.length * 100) + '%';
+      $('#progres-teks').textContent = done + ' dari ' + boxes.length + ' tercentang' + (done === boxes.length ? ' — lengkap! tinggal kirim.' : '');
+      try { localStorage.setItem(SKEY, JSON.stringify(boxes.filter(function (b) { return b.checked; }).map(function (b) { return b.getAttribute('data-syarat'); }))); } catch (e) {}
+    }
+    try {
+      var saved = JSON.parse(localStorage.getItem(SKEY) || '[]');
+      if (Array.isArray(saved)) boxes.forEach(function (b) { if (saved.indexOf(b.getAttribute('data-syarat')) >= 0) b.checked = true; });
+    } catch (e) {}
+    boxes.forEach(function (b) { b.addEventListener('change', renderSyarat); });
+    renderSyarat();
+    // drag inertia strip
+    var strip = $('#strip');
+    if (strip) {
+      var down = false, startX = 0, startScroll = 0, lastX = 0, lastT = 0, vel = 0, moved = 0, raf = 0;
+      strip.addEventListener('pointerdown', function (e) { down = true; moved = 0; startX = e.clientX; lastX = e.clientX; lastT = performance.now(); startScroll = strip.scrollLeft; strip.classList.add('drag'); cancelAnimationFrame(raf); });
+      strip.addEventListener('pointermove', function (e) {
+        if (!down) return;
+        var dx = e.clientX - startX; moved = Math.max(moved, Math.abs(dx)); strip.scrollLeft = startScroll - dx;
+        var now = performance.now(); vel = (e.clientX - lastX) / Math.max(now - lastT, 1); lastX = e.clientX; lastT = now;
+      });
+      function endDrag() {
+        if (!down) return; down = false; strip.classList.remove('drag');
+        (function decay() { if (Math.abs(vel) < 0.02) return; strip.scrollLeft -= vel * 16; vel *= 0.94; raf = requestAnimationFrame(decay); })();
+      }
+      strip.addEventListener('pointerup', endDrag); strip.addEventListener('pointercancel', endDrag);
+      strip.addEventListener('click', function (e) { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
+      $('#strip-prev').addEventListener('click', function () { strip.scrollBy({ left: -280, behavior: 'smooth' }); });
+      $('#strip-next').addEventListener('click', function () { strip.scrollBy({ left: 280, behavior: 'smooth' }); });
+    }
+    // motion toggle + reduced motion
+    var gerakBtn = $('#btn-gerak');
+    var motionOff = false;
+    function applyMotion() {
+      document.documentElement.classList.toggle('no-motion', motionOff);
+      gerakBtn.textContent = 'gerak: ' + (motionOff ? 'mati' : 'nyala');
+      gerakBtn.setAttribute('aria-pressed', String(motionOff));
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) motionOff = true;
+    gerakBtn.addEventListener('click', function () { motionOff = !motionOff; applyMotion(); });
+    applyMotion();
+    // marquee pause
+    var mqBtn = $('#btn-marquee'); var mqPaused = false;
+    mqBtn.addEventListener('click', function () {
+      mqPaused = !mqPaused;
+      $$('.track').forEach(function (t) { t.style.animationPlayState = mqPaused ? 'paused' : 'running'; });
+      mqBtn.textContent = 'marquee: ' + (mqPaused ? 'jeda' : 'jalan');
+      mqBtn.setAttribute('aria-pressed', String(mqPaused));
+    });
+    // lite mode
+    var lite = false;
+    try { lite = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) || (navigator.connection && navigator.connection.saveData); } catch (e) {}
+    if (lite) document.documentElement.classList.add('lite');
+    // camera scrub + marquee velocity skew
+    var wrap = $('#poster-wrap');
+    var lastY = window.scrollY, lastT2 = performance.now(), skew = 0;
+    function onScroll() {
+      if (motionOff || lite) return;
+      var now = performance.now();
+      var v = (window.scrollY - lastY) / Math.max(now - lastT2, 1);
+      lastY = window.scrollY; lastT2 = now;
+      skew = Math.max(-8, Math.min(8, v * 6));
+      $$('.marquee').forEach(function (m) { m.style.transform = 'skewX(' + (-skew) + 'deg)'; });
+      var r = wrap.getBoundingClientRect();
+      var p = Math.max(0, Math.min(1, (window.innerHeight - r.top) / window.innerHeight));
+      var s = 1 + p * 0.06;
+      wrap.style.transform = 'scale(' + s.toFixed(3) + ') rotate(' + (-1 + p).toFixed(2) + 'deg)';
+    }
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    // wipe reveal — sentinel di LUAR section ber-clip-path: IO pada elemen yang
+    // dirinya sendiri ber-clip-path inset 100% tidak pernah intersecting (clip-path
+    // ikut dihitung), jadi amati sentinel 1px tepat sebelum section.
+    document.documentElement.classList.add('js');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { var t = e.target._wipe; if (t) t.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0 });
+      $$('.wipe').forEach(function (el) {
+        var sn = document.createElement('div'); sn.setAttribute('aria-hidden', 'true'); sn.style.height = '1px'; sn._wipe = el;
+        el.parentNode.insertBefore(sn, el); io.observe(sn);
+      });
+    } else { $$('.wipe').forEach(function (el) { el.classList.add('in'); }); }
+    // init
+    loadStored(); loadParams(); syncInputs(); render();
+  })();
+</script>
+

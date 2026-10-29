@@ -1,0 +1,38 @@
+{
+  "seed": "2026-11-15",
+  "totalFontsInPool": 1958,
+  "domain": "resep nenek",
+  "layout": "spreadsheet sebagai UI",
+  "reference": "koran kuning",
+  "constraint": "grain/noise wajib",
+  "motion": {
+    "camera": "kamera \"terbang\" lewat scroll (scale+translate+rotate)",
+    "marquee": "2 band arah berlawanan + skew velocity",
+    "text": "variable font axis animasi",
+    "input": "drag inertia flick",
+    "reveal": "curtain wipe antar section"
+  },
+  "icons": {
+    "style": "monoline satu garis menyambung",
+    "source": "Streamline"
+  },
+  "fonts": {
+    "display": "Blaka",
+    "body": "Heebo",
+    "accent": "Bilbo"
+  },
+  "palette": {
+    "mode": "mid",
+    "harmony": "split-complementary",
+    "baseHue": 21,
+    "bg": "oklch(0.74 0.120 21)",
+    "surface": "oklch(0.60 0.110 21)",
+    "text": "oklch(0.16 0.030 21)",
+    "muted": "oklch(0.32 0.040 21)",
+    "accent": "oklch(0.61 0.182 171)",
+    "accent2": "oklch(0.56 0.200 231)",
+    "pop": "oklch(0.83 0.225 237)",
+    "note": "Draf. Wajib cek kontras AA dan rapikan lightness/chroma."
+  },
+  "buildDate": "2026-11-10"
+}
